@@ -36,7 +36,7 @@ namespace ov_type {
  * its left multiplicative error.
  */
 class PoseJPL : public Type {
- public:
+public:
   PoseJPL() : Type(6) {
     // Initialize subvariables
     _q = std::shared_ptr<JPLQuat>(new JPLQuat());
@@ -93,17 +93,13 @@ class PoseJPL : public Type {
    * @brief Sets the value of the estimate
    * @param new_value New value we should set
    */
-  void set_value(const Eigen::MatrixXd &new_value) override {
-    set_value_internal(new_value);
-  }
+  void set_value(const Eigen::MatrixXd &new_value) override { set_value_internal(new_value); }
 
   /**
    * @brief Sets the value of the first estimate
    * @param new_value New value we should set
    */
-  void set_fej(const Eigen::MatrixXd &new_value) override {
-    set_fej_internal(new_value);
-  }
+  void set_fej(const Eigen::MatrixXd &new_value) override { set_fej_internal(new_value); }
 
   std::shared_ptr<Type> clone() override {
     auto Clone = std::shared_ptr<PoseJPL>(new PoseJPL());
@@ -112,8 +108,7 @@ class PoseJPL : public Type {
     return Clone;
   }
 
-  std::shared_ptr<Type> check_if_subvariable(
-      const std::shared_ptr<Type> check) override {
+  std::shared_ptr<Type> check_if_subvariable(const std::shared_ptr<Type> check) override {
     if (check == _q) {
       return _q;
     } else if (check == _p) {
@@ -146,7 +141,7 @@ class PoseJPL : public Type {
   // Position type access
   std::shared_ptr<Vec> p() { return _p; }
 
- protected:
+protected:
   /// Subvariable containing orientation
   std::shared_ptr<JPLQuat> _q;
 
@@ -188,6 +183,6 @@ class PoseJPL : public Type {
   }
 };
 
-}  // namespace ov_type
+} // namespace ov_type
 
-#endif  // OV_TYPE_TYPE_POSEJPL_H
+#endif // OV_TYPE_TYPE_POSEJPL_H

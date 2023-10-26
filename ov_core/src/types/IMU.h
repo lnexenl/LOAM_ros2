@@ -36,7 +36,7 @@ namespace ov_type {
  * ordering. The pose is first, followed by velocity, etc.
  */
 class IMU : public Type {
- public:
+public:
   IMU() : Type(15) {
     // Create all the sub-variables
     _pose = std::shared_ptr<PoseHM>(new PoseHM());
@@ -99,17 +99,13 @@ class IMU : public Type {
    * @brief Sets the value of the estimate
    * @param new_value New value we should set
    */
-  void set_value(const Eigen::MatrixXd &new_value) override {
-    set_value_internal(new_value);
-  }
+  void set_value(const Eigen::MatrixXd &new_value) override { set_value_internal(new_value); }
 
   /**
    * @brief Sets the value of the first estimate
    * @param new_value New value we should set
    */
-  void set_fej(const Eigen::MatrixXd &new_value) override {
-    set_fej_internal(new_value);
-  }
+  void set_fej(const Eigen::MatrixXd &new_value) override { set_fej_internal(new_value); }
 
   std::shared_ptr<Type> clone() override {
     auto Clone = std::shared_ptr<Type>(new IMU());
@@ -118,8 +114,7 @@ class IMU : public Type {
     return Clone;
   }
 
-  std::shared_ptr<Type> check_if_subvariable(
-      const std::shared_ptr<Type> check) override {
+  std::shared_ptr<Type> check_if_subvariable(const std::shared_ptr<Type> check) override {
     if (check == _pose) {
       return _pose;
     } else if (check == _pose->check_if_subvariable(check)) {
@@ -188,7 +183,7 @@ class IMU : public Type {
   /// Acceleration bias access
   std::shared_ptr<Vec> ba() { return _ba; }
 
- protected:
+protected:
   /// Pose subvariable
   std::shared_ptr<PoseHM> _pose;
 
@@ -234,6 +229,6 @@ class IMU : public Type {
   }
 };
 
-}  // namespace ov_type
+} // namespace ov_type
 
-#endif  // OV_TYPE_TYPE_IMU_H
+#endif // OV_TYPE_TYPE_IMU_H

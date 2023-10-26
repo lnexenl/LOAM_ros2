@@ -46,8 +46,7 @@ State::State(StateOptions &options) {
   _calib_imu_da = std::make_shared<Vec>(6);
   if (options.imu_model == StateOptions::ImuModel::KALIBR) {
     // lower triangular of the matrix (column-wise)
-    Eigen::Matrix<double, 6, 1> _imu_default =
-        Eigen::Matrix<double, 6, 1>::Zero();
+    Eigen::Matrix<double, 6, 1> _imu_default = Eigen::Matrix<double, 6, 1>::Zero();
     _imu_default << 1.0, 0.0, 0.0, 1.0, 0.0, 1.0;
     _calib_imu_dw->set_value(_imu_default);
     _calib_imu_dw->set_fej(_imu_default);
@@ -55,8 +54,7 @@ State::State(StateOptions &options) {
     _calib_imu_da->set_fej(_imu_default);
   } else {
     // upper triangular of the matrix (column-wise)
-    Eigen::Matrix<double, 6, 1> _imu_default =
-        Eigen::Matrix<double, 6, 1>::Zero();
+    Eigen::Matrix<double, 6, 1> _imu_default = Eigen::Matrix<double, 6, 1>::Zero();
     _imu_default << 1.0, 0.0, 0.0, 1.0, 0.0, 1.0;
     _calib_imu_dw->set_value(_imu_default);
     _calib_imu_dw->set_fej(_imu_default);

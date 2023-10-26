@@ -27,8 +27,7 @@
 
 namespace ov_core {
 
-inline Eigen::Matrix<double, 4, 1> rot_2_quat(
-    const Eigen::Matrix<double, 3, 3> &rot) {
+inline Eigen::Matrix<double, 4, 1> rot_2_quat(const Eigen::Matrix<double, 3, 3> &rot) {
   Eigen::Quaterniond q(rot);
   return Eigen::Matrix<double, 4, 1>(q.coeffs());
 }
@@ -47,21 +46,15 @@ inline Eigen::Matrix<double, 4, 1> rot_2_quat(
  * @param[in] w 3x1 vector to be made a skew-symmetric
  * @return 3x3 skew-symmetric matrix
  */
-inline Eigen::Matrix<double, 3, 3> skew_x(
-    const Eigen::Matrix<double, 3, 1> &w) {
+inline Eigen::Matrix<double, 3, 3> skew_x(const Eigen::Matrix<double, 3, 1> &w) {
   Eigen::Matrix<double, 3, 3> w_x;
   w_x << 0, -w(2), w(1), w(2), 0, -w(0), -w(1), w(0), 0;
   return w_x;
 }
 
-inline Eigen::Matrix<double, 3, 3> quat_2_Rot(
-    const Eigen::Matrix<double, 4, 1> &q) {
-  return Eigen::Quaterniond(q).toRotationMatrix();
-}
+inline Eigen::Matrix<double, 3, 3> quat_2_Rot(const Eigen::Matrix<double, 4, 1> &q) { return Eigen::Quaterniond(q).toRotationMatrix(); }
 
-inline Eigen::Matrix<double, 4, 1> quat_multiply(
-    const Eigen::Matrix<double, 4, 1> &q,
-    const Eigen::Matrix<double, 4, 1> &p) {
+inline Eigen::Matrix<double, 4, 1> quat_multiply(const Eigen::Matrix<double, 4, 1> &q, const Eigen::Matrix<double, 4, 1> &p) {
   return (Eigen::Quaterniond(q) * Eigen::Quaterniond(p)).coeffs();
 }
 
@@ -100,8 +93,7 @@ inline Eigen::Matrix<double, 3, 1> vee(const Eigen::Matrix<double, 3, 3> &w_x) {
  * @param[in] w 3x1 vector in R(3) we will take the exponential of
  * @return SO(3) rotation matrix
  */
-inline Eigen::Matrix<double, 3, 3> exp_so3(
-    const Eigen::Matrix<double, 3, 1> &w) {
+inline Eigen::Matrix<double, 3, 3> exp_so3(const Eigen::Matrix<double, 3, 1> &w) {
   // get theta
   Eigen::Matrix<double, 3, 3> w_x = skew_x(w);
   double theta = w.norm();
@@ -143,8 +135,7 @@ inline Eigen::Matrix<double, 3, 3> exp_so3(
  * @param[in] R 3x3 SO(3) rotation matrix
  * @return 3x1 in the R(3) space [omegax, omegay, omegaz]
  */
-inline Eigen::Matrix<double, 3, 1> log_so3(
-    const Eigen::Matrix<double, 3, 3> &R) {
+inline Eigen::Matrix<double, 3, 1> log_so3(const Eigen::Matrix<double, 3, 3> &R) {
   // note switch to base 1
   double R11 = R(0, 0), R12 = R(0, 1), R13 = R(0, 2);
   double R21 = R(1, 0), R22 = R(1, 1), R23 = R(1, 2);
@@ -158,18 +149,15 @@ inline Eigen::Matrix<double, 3, 1> log_so3(
   // we do something special
   if (tr + 1.0 < 1e-10) {
     if (std::abs(R33 + 1.0) > 1e-5)
-      omega =
-          (M_PI / sqrt(2.0 + 2.0 * R33)) * Eigen::Vector3d(R13, R23, 1.0 + R33);
+      omega = (M_PI / sqrt(2.0 + 2.0 * R33)) * Eigen::Vector3d(R13, R23, 1.0 + R33);
     else if (std::abs(R22 + 1.0) > 1e-5)
-      omega =
-          (M_PI / sqrt(2.0 + 2.0 * R22)) * Eigen::Vector3d(R12, 1.0 + R22, R32);
+      omega = (M_PI / sqrt(2.0 + 2.0 * R22)) * Eigen::Vector3d(R12, 1.0 + R22, R32);
     else
       // if(std::abs(R.r1_.x()+1.0) > 1e-5)  This is implicit
-      omega =
-          (M_PI / sqrt(2.0 + 2.0 * R11)) * Eigen::Vector3d(1.0 + R11, R21, R31);
+      omega = (M_PI / sqrt(2.0 + 2.0 * R11)) * Eigen::Vector3d(1.0 + R11, R21, R31);
   } else {
     double magnitude;
-    const double tr_3 = tr - 3.0;  // always negative
+    const double tr_3 = tr - 3.0; // always negative
     if (tr_3 < -1e-7) {
       double theta = acos((tr - 1.0) / 2.0);
       magnitude = theta / (2.0 * sin(theta));
@@ -317,9 +305,7 @@ inline Eigen::Matrix4d Inv_se3(const Eigen::Matrix4d &T) {
   return Tinv;
 }
 
-inline Eigen::Matrix<double, 4, 1> Inv(Eigen::Matrix<double, 4, 1> q) {
-  return Eigen::Quaterniond(q).inverse().coeffs();
-}
+inline Eigen::Matrix<double, 4, 1> Inv(Eigen::Matrix<double, 4, 1> q) { return Eigen::Quaterniond(q).inverse().coeffs(); }
 
 /**
  * @brief Integrated quaternion from angular velocity
@@ -376,17 +362,14 @@ inline Eigen::Matrix<double, 4, 1> quatnorm(Eigen::Matrix<double, 4, 1> q_t) {
  * @param w axis-angle
  * @return The left Jacobian of SO(3)
  */
-inline Eigen::Matrix<double, 3, 3> Jl_so3(
-    const Eigen::Matrix<double, 3, 1> &w) {
+inline Eigen::Matrix<double, 3, 3> Jl_so3(const Eigen::Matrix<double, 3, 1> &w) {
   double theta = w.norm();
   if (theta < 1e-6) {
     return Eigen::MatrixXd::Identity(3, 3);
   } else {
     Eigen::Matrix<double, 3, 1> a = w / theta;
-    Eigen::Matrix<double, 3, 3> J =
-        sin(theta) / theta * Eigen::MatrixXd::Identity(3, 3) +
-        (1 - sin(theta) / theta) * a * a.transpose() +
-        ((1 - cos(theta)) / theta) * skew_x(a);
+    Eigen::Matrix<double, 3, 3> J = sin(theta) / theta * Eigen::MatrixXd::Identity(3, 3) + (1 - sin(theta) / theta) * a * a.transpose() +
+                                    ((1 - cos(theta)) / theta) * skew_x(a);
     return J;
   }
 }
@@ -404,10 +387,7 @@ inline Eigen::Matrix<double, 3, 3> Jl_so3(
  * @param w axis-angle
  * @return The right Jacobian of SO(3)
  */
-inline Eigen::Matrix<double, 3, 3> Jr_so3(
-    const Eigen::Matrix<double, 3, 1> &w) {
-  return Jl_so3(-w);
-}
+inline Eigen::Matrix<double, 3, 3> Jr_so3(const Eigen::Matrix<double, 3, 1> &w) { return Jl_so3(-w); }
 
 /**
  * @brief Gets roll, pitch, yaw of argument rotation (in that order).
@@ -419,11 +399,9 @@ inline Eigen::Matrix<double, 3, 3> Jr_so3(
  * @param rot SO(3) rotation matrix
  * @return roll, pitch, yaw values (in that order)
  */
-inline Eigen::Matrix<double, 3, 1> rot2rpy(
-    const Eigen::Matrix<double, 3, 3> &rot) {
+inline Eigen::Matrix<double, 3, 1> rot2rpy(const Eigen::Matrix<double, 3, 3> &rot) {
   Eigen::Matrix<double, 3, 1> rpy;
-  rpy(1, 0) =
-      atan2(-rot(2, 0), sqrt(rot(0, 0) * rot(0, 0) + rot(1, 0) * rot(1, 0)));
+  rpy(1, 0) = atan2(-rot(2, 0), sqrt(rot(0, 0) * rot(0, 0) + rot(1, 0) * rot(1, 0)));
   if (std::abs(cos(rpy(1, 0))) > 1.0e-12) {
     rpy(2, 0) = atan2(rot(1, 0) / cos(rpy(1, 0)), rot(0, 0) / cos(rpy(1, 0)));
     rpy(0, 0) = atan2(rot(2, 1) / cos(rpy(1, 0)), rot(2, 2) / cos(rpy(1, 0)));
@@ -503,6 +481,6 @@ inline Eigen::Matrix<double, 3, 3> rot_z(double t) {
   return r;
 }
 
-}  // namespace ov_core
+} // namespace ov_core
 
 #endif /* OV_CORE_QUAT_OPS_H */

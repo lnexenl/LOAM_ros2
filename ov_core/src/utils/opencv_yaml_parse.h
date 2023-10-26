@@ -61,46 +61,39 @@ namespace ov_core {
  * same level.
  */
 class YamlParser {
- public:
+public:
   /**
    * @brief Constructor that loads all three configuration files
    * @param config_path Path to the YAML file we will parse
    * @param fail_if_not_found If we should terminate the program if we can't
    * open the config file
    */
-  explicit YamlParser(const std::string &config_path,
-                      bool fail_if_not_found = true)
-      : config_path_(config_path) {
+  explicit YamlParser(const std::string &config_path, bool fail_if_not_found = true) : config_path_(config_path) {
     // Check if file exists
     if (!fail_if_not_found && !boost::filesystem::exists(config_path)) {
       config = nullptr;
       return;
     }
     if (!boost::filesystem::exists(config_path)) {
-      PRINT_ERROR(RED "unable to open the configuration file!\n%s\n" RESET,
-                  config_path.c_str());
+      PRINT_ERROR(RED "unable to open the configuration file!\n%s\n" RESET, config_path.c_str());
       std::exit(EXIT_FAILURE);
     }
 
     // Open the file, error if we can't
-    config =
-        std::make_shared<cv::FileStorage>(config_path, cv::FileStorage::READ);
+    config = std::make_shared<cv::FileStorage>(config_path, cv::FileStorage::READ);
     if (!fail_if_not_found && !config->isOpened()) {
       config = nullptr;
       return;
     }
     if (!config->isOpened()) {
-      PRINT_ERROR(RED "unable to open the configuration file!\n%s\n" RESET,
-                  config_path.c_str());
+      PRINT_ERROR(RED "unable to open the configuration file!\n%s\n" RESET, config_path.c_str());
       std::exit(EXIT_FAILURE);
     }
   }
 
 #if ROS_AVAILABLE == 1
   /// Allows setting of the node handler if we have ROS to override parameters
-  void set_node_handler(std::shared_ptr<ros::NodeHandle> nh_) {
-    this->nh = nh_;
-  }
+  void set_node_handler(std::shared_ptr<ros::NodeHandle> nh_) { this->nh = nh_; }
 #endif
 
 #if ROS_AVAILABLE == 2
@@ -112,9 +105,7 @@ class YamlParser {
    * @brief Will get the folder this config file is in
    * @return Config folder
    */
-  std::string get_config_folder() {
-    return config_path_.substr(0, config_path_.find_last_of('/')) + "/";
-  }
+  std::string get_config_folder() { return config_path_.substr(0, config_path_.find_last_of('/')) + "/"; }
 
   /**
    * @brief Check to see if all parameters were read succesfully
@@ -134,22 +125,16 @@ class YamlParser {
    * it)
    * @param required If this parameter is required by the user to set
    */
-  template <class T>
-  void parse_config(const std::string &node_name, T &node_result,
-                    bool required = true) {
+  template <class T> void parse_config(const std::string &node_name, T &node_result, bool required = true) {
 #if ROS_AVAILABLE == 1
     if (nh != nullptr && nh->getParam(node_name, node_result)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 node_name.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, node_name.c_str());
       nh->param<T>(node_name, node_result);
       return;
     }
 #elif ROS_AVAILABLE == 2
     if (node != nullptr && node->has_parameter(node_name)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 node_name.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, node_name.c_str());
       node->get_parameter<T>(node_name, node_result);
       return;
     }
@@ -179,33 +164,26 @@ class YamlParser {
    * @param required If this parameter is required by the user to set
    */
   template <class T>
-  void parse_external(const std::string &external_node_name,
-                      const std::string &sensor_name,
-                      const std::string &node_name, T &node_result,
+  void parse_external(const std::string &external_node_name, const std::string &sensor_name, const std::string &node_name, T &node_result,
                       bool required = true) {
 #if ROS_AVAILABLE == 1
     std::string rosnode = sensor_name + "_" + node_name;
     if (nh != nullptr && nh->getParam(rosnode, node_result)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 rosnode.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, rosnode.c_str());
       nh->param<T>(rosnode, node_result);
       return;
     }
 #elif ROS_AVAILABLE == 2
     std::string rosnode = sensor_name + "_" + node_name;
     if (node != nullptr && node->has_parameter(rosnode)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 rosnode.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, rosnode.c_str());
       node->get_parameter<T>(rosnode, node_result);
       return;
     }
 #endif
 
     // Else we just parse from the YAML file!
-    parse_external_yaml(external_node_name, sensor_name, node_name, node_result,
-                        required);
+    parse_external_yaml(external_node_name, sensor_name, node_name, node_result, required);
   }
 
   /**
@@ -227,9 +205,7 @@ class YamlParser {
    * it)
    * @param required If this parameter is required by the user to set
    */
-  void parse_external(const std::string &external_node_name,
-                      const std::string &sensor_name,
-                      const std::string &node_name,
+  void parse_external(const std::string &external_node_name, const std::string &sensor_name, const std::string &node_name,
                       Eigen::Matrix3d &node_result, bool required = true) {
 #if ROS_AVAILABLE == 1
     // If we have the ROS parameter, we should just get that one
@@ -238,12 +214,9 @@ class YamlParser {
     std::string rosnode = sensor_name + "_" + node_name;
     std::vector<double> matrix_RCtoI;
     if (nh != nullptr && nh->getParam(rosnode, matrix_RCtoI)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 rosnode.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, rosnode.c_str());
       nh->param<std::vector<double>>(rosnode, matrix_RCtoI);
-      node_result << matrix_RCtoI.at(0), matrix_RCtoI.at(1), matrix_RCtoI.at(2),
-          matrix_RCtoI.at(3), matrix_RCtoI.at(4), matrix_RCtoI.at(5),
+      node_result << matrix_RCtoI.at(0), matrix_RCtoI.at(1), matrix_RCtoI.at(2), matrix_RCtoI.at(3), matrix_RCtoI.at(4), matrix_RCtoI.at(5),
           matrix_RCtoI.at(6), matrix_RCtoI.at(7), matrix_RCtoI.at(8);
       return;
     }
@@ -254,20 +227,16 @@ class YamlParser {
     std::string rosnode = sensor_name + "_" + node_name;
     std::vector<double> matrix_RCtoI;
     if (node != nullptr && node->has_parameter(rosnode)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 rosnode.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, rosnode.c_str());
       node->get_parameter<std::vector<double>>(rosnode, matrix_RCtoI);
-      node_result << matrix_RCtoI.at(0), matrix_RCtoI.at(1), matrix_RCtoI.at(2),
-          matrix_RCtoI.at(3), matrix_RCtoI.at(4), matrix_RCtoI.at(5),
+      node_result << matrix_RCtoI.at(0), matrix_RCtoI.at(1), matrix_RCtoI.at(2), matrix_RCtoI.at(3), matrix_RCtoI.at(4), matrix_RCtoI.at(5),
           matrix_RCtoI.at(6), matrix_RCtoI.at(7), matrix_RCtoI.at(8);
       return;
     }
 #endif
 
     // Else we just parse from the YAML file!
-    parse_external_yaml(external_node_name, sensor_name, node_name, node_result,
-                        required);
+    parse_external_yaml(external_node_name, sensor_name, node_name, node_result, required);
   }
 
   /**
@@ -289,9 +258,7 @@ class YamlParser {
    * it)
    * @param required If this parameter is required by the user to set
    */
-  void parse_external(const std::string &external_node_name,
-                      const std::string &sensor_name,
-                      const std::string &node_name,
+  void parse_external(const std::string &external_node_name, const std::string &sensor_name, const std::string &node_name,
                       Eigen::Matrix4d &node_result, bool required = true) {
 #if ROS_AVAILABLE == 1
     // If we have the ROS parameter, we should just get that one
@@ -300,16 +267,11 @@ class YamlParser {
     std::string rosnode = sensor_name + "_" + node_name;
     std::vector<double> matrix_TCtoI;
     if (nh != nullptr && nh->getParam(rosnode, matrix_TCtoI)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 rosnode.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, rosnode.c_str());
       nh->param<std::vector<double>>(rosnode, matrix_TCtoI);
-      node_result << matrix_TCtoI.at(0), matrix_TCtoI.at(1), matrix_TCtoI.at(2),
-          matrix_TCtoI.at(3), matrix_TCtoI.at(4), matrix_TCtoI.at(5),
-          matrix_TCtoI.at(6), matrix_TCtoI.at(7), matrix_TCtoI.at(8),
-          matrix_TCtoI.at(9), matrix_TCtoI.at(10), matrix_TCtoI.at(11),
-          matrix_TCtoI.at(12), matrix_TCtoI.at(13), matrix_TCtoI.at(14),
-          matrix_TCtoI.at(15);
+      node_result << matrix_TCtoI.at(0), matrix_TCtoI.at(1), matrix_TCtoI.at(2), matrix_TCtoI.at(3), matrix_TCtoI.at(4), matrix_TCtoI.at(5),
+          matrix_TCtoI.at(6), matrix_TCtoI.at(7), matrix_TCtoI.at(8), matrix_TCtoI.at(9), matrix_TCtoI.at(10), matrix_TCtoI.at(11),
+          matrix_TCtoI.at(12), matrix_TCtoI.at(13), matrix_TCtoI.at(14), matrix_TCtoI.at(15);
       return;
     }
 #elif ROS_AVAILABLE == 2
@@ -319,36 +281,27 @@ class YamlParser {
     std::string rosnode = sensor_name + "_" + node_name;
     std::vector<double> matrix_TCtoI;
     if (node != nullptr && node->has_parameter(rosnode)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 rosnode.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, rosnode.c_str());
       node->get_parameter<std::vector<double>>(rosnode, matrix_TCtoI);
-      node_result << matrix_TCtoI.at(0), matrix_TCtoI.at(1), matrix_TCtoI.at(2),
-          matrix_TCtoI.at(3), matrix_TCtoI.at(4), matrix_TCtoI.at(5),
-          matrix_TCtoI.at(6), matrix_TCtoI.at(7), matrix_TCtoI.at(8),
-          matrix_TCtoI.at(9), matrix_TCtoI.at(10), matrix_TCtoI.at(11),
-          matrix_TCtoI.at(12), matrix_TCtoI.at(13), matrix_TCtoI.at(14),
-          matrix_TCtoI.at(15);
+      node_result << matrix_TCtoI.at(0), matrix_TCtoI.at(1), matrix_TCtoI.at(2), matrix_TCtoI.at(3), matrix_TCtoI.at(4), matrix_TCtoI.at(5),
+          matrix_TCtoI.at(6), matrix_TCtoI.at(7), matrix_TCtoI.at(8), matrix_TCtoI.at(9), matrix_TCtoI.at(10), matrix_TCtoI.at(11),
+          matrix_TCtoI.at(12), matrix_TCtoI.at(13), matrix_TCtoI.at(14), matrix_TCtoI.at(15);
       return;
     }
 #endif
 
     // Else we just parse from the YAML file!
-    parse_external_yaml(external_node_name, sensor_name, node_name, node_result,
-                        required);
+    parse_external_yaml(external_node_name, sensor_name, node_name, node_result, required);
   }
 
 #if ROS_AVAILABLE == 2
   /// For ROS2 we need to override the int since it seems to only support
   /// int64_t types
   /// https://docs.ros2.org/bouncy/api/rclcpp/classrclcpp_1_1_parameter.html
-  void parse_config(const std::string &node_name, int &node_result,
-                    bool required = true) {
+  void parse_config(const std::string &node_name, int &node_result, bool required = true) {
     int64_t val = node_result;
     if (node != nullptr && node->has_parameter(node_name)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 node_name.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, node_name.c_str());
       node->get_parameter<int64_t>(node_name, val);
       node_result = (int)val;
       return;
@@ -358,28 +311,25 @@ class YamlParser {
   /// For ROS2 we need to override the int since it seems to only support
   /// int64_t types
   /// https://docs.ros2.org/bouncy/api/rclcpp/classrclcpp_1_1_parameter.html
-  void parse_external(const std::string &external_node_name,
-                      const std::string &sensor_name,
-                      const std::string &node_name,
+  void parse_external(const std::string &external_node_name, const std::string &sensor_name, const std::string &node_name,
                       std::vector<int> &node_result, bool required = true) {
     std::vector<int64_t> val;
-    for (auto tmp : node_result) val.push_back(tmp);
+    for (auto tmp : node_result)
+      val.push_back(tmp);
     std::string rosnode = sensor_name + "_" + node_name;
     if (node != nullptr && node->has_parameter(rosnode)) {
-      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN
-                       " with value from ROS!\n" RESET,
-                 rosnode.c_str());
+      PRINT_INFO(GREEN "overriding node " BOLDGREEN "%s" RESET GREEN " with value from ROS!\n" RESET, rosnode.c_str());
       node->get_parameter<std::vector<int64_t>>(rosnode, val);
       node_result.clear();
-      for (auto tmp : val) node_result.push_back((int)tmp);
+      for (auto tmp : val)
+        node_result.push_back((int)tmp);
       return;
     }
-    parse_external_yaml(external_node_name, sensor_name, node_name, node_result,
-                        required);
+    parse_external_yaml(external_node_name, sensor_name, node_name, node_result, required);
   }
 #endif
 
- private:
+private:
   /// Path to the config file
   std::string config_path_;
 
@@ -405,8 +355,7 @@ class YamlParser {
    * @param node_name Name of the node
    * @return True if we can get the data
    */
-  static bool node_found(const cv::FileNode &file_node,
-                         const std::string &node_name) {
+  static bool node_found(const cv::FileNode &file_node, const std::string &node_name) {
     bool found_node = false;
     for (const auto &item : file_node) {
       if (item.name() == node_name) {
@@ -430,20 +379,14 @@ class YamlParser {
    * it)
    * @param required If this parameter is required by the user to set
    */
-  template <class T>
-  void parse(const cv::FileNode &file_node, const std::string &node_name,
-             T &node_result, bool required = true) {
+  template <class T> void parse(const cv::FileNode &file_node, const std::string &node_name, T &node_result, bool required = true) {
     // Check that we have the requested node
     if (!node_found(file_node, node_name)) {
       if (required) {
-        PRINT_WARNING(YELLOW
-                      "the node %s of type [%s] was not found...\n" RESET,
-                      node_name.c_str(), typeid(node_result).name());
+        PRINT_WARNING(YELLOW "the node %s of type [%s] was not found...\n" RESET, node_name.c_str(), typeid(node_result).name());
         all_params_found_successfully = false;
       } else {
-        PRINT_DEBUG(
-            "the node %s of type [%s] was not found (not required)...\n",
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_DEBUG("the node %s of type [%s] was not found (not required)...\n", node_name.c_str(), typeid(node_result).name());
       }
       return;
     }
@@ -453,16 +396,13 @@ class YamlParser {
       file_node[node_name] >> node_result;
     } catch (...) {
       if (required) {
-        PRINT_WARNING(
-            YELLOW
-            "unable to parse %s node of type [%s] in the config file!\n" RESET,
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_WARNING(YELLOW "unable to parse %s node of type [%s] in the config file!\n" RESET, node_name.c_str(),
+                      typeid(node_result).name());
         all_params_found_successfully = false;
       } else {
-        PRINT_DEBUG(
-            "unable to parse %s node of type [%s] in the config file (not "
-            "required)\n",
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_DEBUG("unable to parse %s node of type [%s] in the config file (not "
+                    "required)\n",
+                    node_name.c_str(), typeid(node_result).name());
       }
     }
   }
@@ -476,19 +416,14 @@ class YamlParser {
    * it)
    * @param required If this parameter is required by the user to set
    */
-  void parse(const cv::FileNode &file_node, const std::string &node_name,
-             bool &node_result, bool required = true) {
+  void parse(const cv::FileNode &file_node, const std::string &node_name, bool &node_result, bool required = true) {
     // Check that we have the requested node
     if (!node_found(file_node, node_name)) {
       if (required) {
-        PRINT_WARNING(YELLOW
-                      "the node %s of type [%s] was not found...\n" RESET,
-                      node_name.c_str(), typeid(node_result).name());
+        PRINT_WARNING(YELLOW "the node %s of type [%s] was not found...\n" RESET, node_name.c_str(), typeid(node_result).name());
         all_params_found_successfully = false;
       } else {
-        PRINT_DEBUG(
-            "the node %s of type [%s] was not found (not required)...\n",
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_DEBUG("the node %s of type [%s] was not found (not required)...\n", node_name.c_str(), typeid(node_result).name());
       }
       return;
     }
@@ -510,30 +445,23 @@ class YamlParser {
       file_node[node_name] >> value;
       value = value.substr(0, value.find_first_of('#'));
       value = value.substr(0, value.find_first_of(' '));
-      if (value == "1" || value == "true" || value == "True" ||
-          value == "TRUE") {
+      if (value == "1" || value == "true" || value == "True" || value == "TRUE") {
         node_result = true;
-      } else if (value == "0" || value == "false" || value == "False" ||
-                 value == "FALSE") {
+      } else if (value == "0" || value == "false" || value == "False" || value == "FALSE") {
         node_result = false;
       } else {
-        PRINT_WARNING(YELLOW
-                      "the node %s has an invalid boolean type of [%s]\n" RESET,
-                      node_name.c_str(), value.c_str());
+        PRINT_WARNING(YELLOW "the node %s has an invalid boolean type of [%s]\n" RESET, node_name.c_str(), value.c_str());
         all_params_found_successfully = false;
       }
     } catch (...) {
       if (required) {
-        PRINT_WARNING(
-            YELLOW
-            "unable to parse %s node of type [%s] in the config file!\n" RESET,
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_WARNING(YELLOW "unable to parse %s node of type [%s] in the config file!\n" RESET, node_name.c_str(),
+                      typeid(node_result).name());
         all_params_found_successfully = false;
       } else {
-        PRINT_DEBUG(
-            "unable to parse %s node of type [%s] in the config file (not "
-            "required)\n",
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_DEBUG("unable to parse %s node of type [%s] in the config file (not "
+                    "required)\n",
+                    node_name.c_str(), typeid(node_result).name());
       }
     }
   }
@@ -546,19 +474,14 @@ class YamlParser {
    * it)
    * @param required If this parameter is required by the user to set
    */
-  void parse(const cv::FileNode &file_node, const std::string &node_name,
-             Eigen::Matrix3d &node_result, bool required = true) {
+  void parse(const cv::FileNode &file_node, const std::string &node_name, Eigen::Matrix3d &node_result, bool required = true) {
     // Check that we have the requested node
     if (!node_found(file_node, node_name)) {
       if (required) {
-        PRINT_WARNING(YELLOW
-                      "the node %s of type [%s] was not found...\n" RESET,
-                      node_name.c_str(), typeid(node_result).name());
+        PRINT_WARNING(YELLOW "the node %s of type [%s] was not found...\n" RESET, node_name.c_str(), typeid(node_result).name());
         all_params_found_successfully = false;
       } else {
-        PRINT_DEBUG(
-            "the node %s of type [%s] was not found (not required)...\n",
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_DEBUG("the node %s of type [%s] was not found (not required)...\n", node_name.c_str(), typeid(node_result).name());
       }
       return;
     }
@@ -573,16 +496,13 @@ class YamlParser {
       }
     } catch (...) {
       if (required) {
-        PRINT_WARNING(
-            YELLOW
-            "unable to parse %s node of type [%s] in the config file!\n" RESET,
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_WARNING(YELLOW "unable to parse %s node of type [%s] in the config file!\n" RESET, node_name.c_str(),
+                      typeid(node_result).name());
         all_params_found_successfully = false;
       } else {
-        PRINT_DEBUG(
-            "unable to parse %s node of type [%s] in the config file (not "
-            "required)\n",
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_DEBUG("unable to parse %s node of type [%s] in the config file (not "
+                    "required)\n",
+                    node_name.c_str(), typeid(node_result).name());
       }
     }
   }
@@ -595,33 +515,26 @@ class YamlParser {
    * it)
    * @param required If this parameter is required by the user to set
    */
-  void parse(const cv::FileNode &file_node, const std::string &node_name,
-             Eigen::Matrix4d &node_result, bool required = true) {
+  void parse(const cv::FileNode &file_node, const std::string &node_name, Eigen::Matrix4d &node_result, bool required = true) {
     // See if we need to flip the node name
     std::string node_name_local = node_name;
     if (node_name == "T_cam_imu" && !node_found(file_node, node_name)) {
-      PRINT_INFO(
-          "parameter T_cam_imu not found, trying T_imu_cam instead (will "
-          "return T_cam_imu still)!\n");
+      PRINT_INFO("parameter T_cam_imu not found, trying T_imu_cam instead (will "
+                 "return T_cam_imu still)!\n");
       node_name_local = "T_imu_cam";
     } else if (node_name == "T_imu_cam" && !node_found(file_node, node_name)) {
-      PRINT_INFO(
-          "parameter T_imu_cam not found, trying T_cam_imu instead (will "
-          "return T_imu_cam still)!\n");
+      PRINT_INFO("parameter T_imu_cam not found, trying T_cam_imu instead (will "
+                 "return T_imu_cam still)!\n");
       node_name_local = "T_cam_imu";
     }
 
     // Check that we have the requested node
     if (!node_found(file_node, node_name_local)) {
       if (required) {
-        PRINT_WARNING(YELLOW
-                      "the node %s of type [%s] was not found...\n" RESET,
-                      node_name_local.c_str(), typeid(node_result).name());
+        PRINT_WARNING(YELLOW "the node %s of type [%s] was not found...\n" RESET, node_name_local.c_str(), typeid(node_result).name());
         all_params_found_successfully = false;
       } else {
-        PRINT_DEBUG(
-            "the node %s of type [%s] was not found (not required)...\n",
-            node_name_local.c_str(), typeid(node_result).name());
+        PRINT_DEBUG("the node %s of type [%s] was not found (not required)...\n", node_name_local.c_str(), typeid(node_result).name());
       }
       return;
     }
@@ -629,25 +542,20 @@ class YamlParser {
     // Now try to get it from the config
     node_result = Eigen::Matrix4d::Identity();
     try {
-      for (int r = 0; r < (int)file_node[node_name_local].size() && r < 4;
-           r++) {
-        for (int c = 0; c < (int)file_node[node_name_local][r].size() && c < 4;
-             c++) {
+      for (int r = 0; r < (int)file_node[node_name_local].size() && r < 4; r++) {
+        for (int c = 0; c < (int)file_node[node_name_local][r].size() && c < 4; c++) {
           node_result(r, c) = (double)file_node[node_name_local][r][c];
         }
       }
     } catch (...) {
       if (required) {
-        PRINT_WARNING(
-            YELLOW
-            "unable to parse %s node of type [%s] in the config file!\n" RESET,
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_WARNING(YELLOW "unable to parse %s node of type [%s] in the config file!\n" RESET, node_name.c_str(),
+                      typeid(node_result).name());
         all_params_found_successfully = false;
       } else {
-        PRINT_DEBUG(
-            "unable to parse %s node of type [%s] in the config file (not "
-            "required)\n",
-            node_name.c_str(), typeid(node_result).name());
+        PRINT_DEBUG("unable to parse %s node of type [%s] in the config file (not "
+                    "required)\n",
+                    node_name.c_str(), typeid(node_result).name());
       }
     }
 
@@ -670,20 +578,17 @@ class YamlParser {
    * it)
    * @param required If this parameter is required by the user to set
    */
-  template <class T>
-  void parse_config_yaml(const std::string &node_name, T &node_result,
-                         bool required = true) {
+  template <class T> void parse_config_yaml(const std::string &node_name, T &node_result, bool required = true) {
     // Directly return if the config hasn't been opened
-    if (config == nullptr) return;
+    if (config == nullptr)
+      return;
 
     // Else lets get the one from the config
     try {
       parse(config->root(), node_name, node_result, required);
     } catch (...) {
-      PRINT_WARNING(
-          YELLOW
-          "unable to parse %s node of type [%s] in the config file!\n" RESET,
-          node_name.c_str(), typeid(node_result).name());
+      PRINT_WARNING(YELLOW "unable to parse %s node of type [%s] in the config file!\n" RESET, node_name.c_str(),
+                    typeid(node_result).name());
       all_params_found_successfully = false;
     }
   }
@@ -708,38 +613,31 @@ class YamlParser {
    * @param required If this parameter is required by the user to set
    */
   template <class T>
-  void parse_external_yaml(const std::string &external_node_name,
-                           const std::string &sensor_name,
-                           const std::string &node_name, T &node_result,
-                           bool required = true) {
+  void parse_external_yaml(const std::string &external_node_name, const std::string &sensor_name, const std::string &node_name,
+                           T &node_result, bool required = true) {
     // Directly return if the config hasn't been opened
-    if (config == nullptr) return;
+    if (config == nullptr)
+      return;
 
     // Create the path the external yaml file
     std::string path;
     if (!node_found(config->root(), external_node_name)) {
-      PRINT_ERROR(RED "the external node %s could not be found!\n" RESET,
-                  external_node_name.c_str());
+      PRINT_ERROR(RED "the external node %s could not be found!\n" RESET, external_node_name.c_str());
       std::exit(EXIT_FAILURE);
     }
     (*config)[external_node_name] >> path;
-    std::string relative_folder =
-        config_path_.substr(0, config_path_.find_last_of('/')) + "/";
+    std::string relative_folder = config_path_.substr(0, config_path_.find_last_of('/')) + "/";
 
     // Now actually try to load them from file!
-    auto config_external = std::make_shared<cv::FileStorage>(
-        relative_folder + path, cv::FileStorage::READ);
+    auto config_external = std::make_shared<cv::FileStorage>(relative_folder + path, cv::FileStorage::READ);
     if (!config_external->isOpened()) {
-      PRINT_ERROR(RED "unable to open the configuration file!\n%s\n" RESET,
-                  (relative_folder + path).c_str());
+      PRINT_ERROR(RED "unable to open the configuration file!\n%s\n" RESET, (relative_folder + path).c_str());
       std::exit(EXIT_FAILURE);
     }
 
     // Check that we have the requested node
     if (!node_found(config_external->root(), sensor_name)) {
-      PRINT_WARNING(YELLOW
-                    "the sensor %s of type [%s] was not found...\n" RESET,
-                    sensor_name.c_str(), typeid(node_result).name());
+      PRINT_WARNING(YELLOW "the sensor %s of type [%s] was not found...\n" RESET, sensor_name.c_str(), typeid(node_result).name());
       all_params_found_successfully = false;
       return;
     }
@@ -748,11 +646,9 @@ class YamlParser {
     try {
       parse((*config_external)[sensor_name], node_name, node_result, required);
     } catch (...) {
-      PRINT_WARNING(YELLOW
-                    "unable to parse %s node of type [%s] in [%s] in the "
-                    "external %s config file!\n" RESET,
-                    node_name.c_str(), typeid(node_result).name(),
-                    sensor_name.c_str(), external_node_name.c_str());
+      PRINT_WARNING(YELLOW "unable to parse %s node of type [%s] in [%s] in the "
+                           "external %s config file!\n" RESET,
+                    node_name.c_str(), typeid(node_result).name(), sensor_name.c_str(), external_node_name.c_str());
       all_params_found_successfully = false;
     }
   }

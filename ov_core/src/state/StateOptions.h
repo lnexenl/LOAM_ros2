@@ -84,13 +84,11 @@ struct StateOptions {
       // Calibration booleans
       parser->parse_config("calib_lidar_extrinsics", do_calib_lidar_pose);
       parser->parse_config("calib_imu_intrinsics", do_calib_imu_intrinsics);
-      parser->parse_config("calib_imu_g_sensitivity",
-                           do_calib_imu_g_sensitivity);
+      parser->parse_config("calib_imu_g_sensitivity", do_calib_imu_g_sensitivity);
 
       // IMU model
       std::string imu_model_str = "kalibr";
-      parser->parse_external("relative_config_imu", "imu0", "model",
-                             imu_model_str);
+      parser->parse_external("relative_config_imu", "imu0", "model", imu_model_str);
       if (imu_model_str == "kalibr" || imu_model_str == "calibrated") {
         imu_model = ImuModel::KALIBR;
       } else if (imu_model_str == "rpng") {
@@ -100,10 +98,8 @@ struct StateOptions {
         logger->error("please select a valid model: kalibr, rpng");
         std::exit(EXIT_FAILURE);
       }
-      if (imu_model_str == "calibrated" &&
-          (do_calib_imu_intrinsics || do_calib_imu_g_sensitivity)) {
-        logger->error(
-            "calibrated IMU model selected, but requested calibration!");
+      if (imu_model_str == "calibrated" && (do_calib_imu_intrinsics || do_calib_imu_g_sensitivity)) {
+        logger->error("calibrated IMU model selected, but requested calibration!");
         logger->error("please select what model you have: kalibr, rpng");
         std::exit(EXIT_FAILURE);
       }
@@ -112,12 +108,11 @@ struct StateOptions {
     logger->debug("  - integration: {}", integration_method);
     logger->debug("  - calib_lidar_extrinsics: {}", do_calib_lidar_pose);
     logger->debug("  - calib_imu_intrinsics: {}", do_calib_imu_intrinsics);
-    logger->debug("  - calib_imu_g_sensitivity: {}",
-                  do_calib_imu_g_sensitivity);
+    logger->debug("  - calib_imu_g_sensitivity: {}", do_calib_imu_g_sensitivity);
     logger->debug("  - imu_model: {}", imu_model);
   }
 };
 
-}  // namespace ov_msckf
+} // namespace ov_msckf
 
-#endif  // OV_MSCKF_STATE_OPTIONS_H
+#endif // OV_MSCKF_STATE_OPTIONS_H

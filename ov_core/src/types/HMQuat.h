@@ -28,7 +28,7 @@
 namespace ov_type {
 
 class HMQuat : public Type {
- public:
+public:
   HMQuat() : Type(3) {
     Eigen::Vector4d q0 = Eigen::Vector4d::Zero();
     q0(3) = 1.0;
@@ -67,18 +67,14 @@ class HMQuat : public Type {
    * @param new_value New value for the quaternion estimate (HM quat as
    * x,y,z,w)
    */
-  void set_value(const Eigen::MatrixXd &new_value) override {
-    set_value_internal(new_value);
-  }
+  void set_value(const Eigen::MatrixXd &new_value) override { set_value_internal(new_value); }
 
   /**
    * @brief Sets the fej value and recomputes the fej rotation matrix
    * @param new_value New value for the quaternion estimate (HM quat as
    * x,y,z,w)
    */
-  void set_fej(const Eigen::MatrixXd &new_value) override {
-    set_fej_internal(new_value);
-  }
+  void set_fej(const Eigen::MatrixXd &new_value) override { set_fej_internal(new_value); }
 
   std::shared_ptr<Type> clone() override {
     auto Clone = std::shared_ptr<HMQuat>(new HMQuat());
@@ -93,7 +89,7 @@ class HMQuat : public Type {
   /// FEJ Rotation access
   Eigen::Matrix<double, 3, 3> Rot_fej() const { return _Rfej; }
 
- protected:
+protected:
   // Stores the rotation
   Eigen::Matrix<double, 3, 3> _R;
 
@@ -130,6 +126,6 @@ class HMQuat : public Type {
   }
 };
 
-}  // namespace ov_type
+} // namespace ov_type
 
-#endif  // OV_TYPE_TYPE_HMQuat_H
+#endif // OV_TYPE_TYPE_HMQuat_H

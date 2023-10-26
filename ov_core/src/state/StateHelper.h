@@ -25,9 +25,11 @@
 #include <Eigen/Eigen>
 #include <memory>
 
+#include "utils/logger.h"
+
 namespace ov_type {
 class Type;
-}  // namespace ov_type
+} // namespace ov_type
 
 namespace ov_msckf {
 
@@ -45,7 +47,7 @@ class State;
  * documentation pages.
  */
 class StateHelper {
- public:
+public:
   /**
    * @brief Performs EKF propagation of the state covariance.
    *
@@ -76,11 +78,9 @@ class StateHelper {
    * @param Q Additive state propagation noise matrix (size order_NEW by size
    * order_NEW)
    */
-  static void EKFPropagation(
-      std::shared_ptr<State> state,
-      const std::vector<std::shared_ptr<ov_type::Type>> &order_NEW,
-      const std::vector<std::shared_ptr<ov_type::Type>> &order_OLD,
-      const Eigen::MatrixXd &Phi, const Eigen::MatrixXd &Q);
+  static void EKFPropagation(std::shared_ptr<State> state, const std::vector<std::shared_ptr<ov_type::Type>> &order_NEW,
+                             const std::vector<std::shared_ptr<ov_type::Type>> &order_OLD, const Eigen::MatrixXd &Phi,
+                             const Eigen::MatrixXd &Q);
 
   /**
    * @brief Performs EKF update of the state (see @ref linear-meas page)
@@ -90,11 +90,8 @@ class StateHelper {
    * @param res Residual of updating measurement
    * @param R Updating measurement covariance
    */
-  static void EKFUpdate(
-      std::shared_ptr<State> state,
-      const std::vector<std::shared_ptr<ov_type::Type>> &H_order,
-      const Eigen::MatrixXd &H, const Eigen::VectorXd &res,
-      const Eigen::MatrixXd &R);
+  static void EKFUpdate(std::shared_ptr<State> state, const std::vector<std::shared_ptr<ov_type::Type>> &H_order, const Eigen::MatrixXd &H,
+                        const Eigen::VectorXd &res, const Eigen::MatrixXd &R);
 
   /**
    * @brief This will set the initial covaraince of the specified state
@@ -103,9 +100,8 @@ class StateHelper {
    * @param covariance The covariance of the system state
    * @param order Order of the covariance matrix
    */
-  static void set_initial_covariance(
-      std::shared_ptr<State> state, const Eigen::MatrixXd &covariance,
-      const std::vector<std::shared_ptr<ov_type::Type>> &order);
+  static void set_initial_covariance(std::shared_ptr<State> state, const Eigen::MatrixXd &covariance,
+                                     const std::vector<std::shared_ptr<ov_type::Type>> &order);
 
   /**
    * @brief For a given set of variables, this will this will calculate a
@@ -121,9 +117,8 @@ class StateHelper {
    * desired
    * @return Marginal covariance of the passed variables
    */
-  static Eigen::MatrixXd get_marginal_covariance(
-      std::shared_ptr<State> state,
-      const std::vector<std::shared_ptr<ov_type::Type>> &small_variables);
+  static Eigen::MatrixXd get_marginal_covariance(std::shared_ptr<State> state,
+                                                 const std::vector<std::shared_ptr<ov_type::Type>> &small_variables);
 
   /**
    * @brief This gets the full covariance matrix.
@@ -153,17 +148,14 @@ class StateHelper {
    * @param state Pointer to state
    * @param marg Pointer to variable to marginalize
    */
-  static void marginalize(std::shared_ptr<State> state,
-                          std::shared_ptr<ov_type::Type> marg);
+  static void marginalize(std::shared_ptr<State> state, std::shared_ptr<ov_type::Type> marg);
 
   /**
    * @brief Clones "variable to clone" and places it at end of covariance
    * @param state Pointer to state
    * @param variable_to_clone Pointer to variable that will be cloned
    */
-  static std::shared_ptr<ov_type::Type> clone(
-      std::shared_ptr<State> state,
-      std::shared_ptr<ov_type::Type> variable_to_clone);
+  static std::shared_ptr<ov_type::Type> clone(std::shared_ptr<State> state, std::shared_ptr<ov_type::Type> variable_to_clone);
 
   /**
    * @brief Initializes new variable into covariance.
@@ -186,11 +178,9 @@ class StateHelper {
    * @param chi_2_mult Value we should multiply the chi2 threshold by (larger
    * means it will be accepted more measurements)
    */
-  static bool initialize(
-      std::shared_ptr<State> state, std::shared_ptr<ov_type::Type> new_variable,
-      const std::vector<std::shared_ptr<ov_type::Type>> &H_order,
-      Eigen::MatrixXd &H_R, Eigen::MatrixXd &H_L, Eigen::MatrixXd &R,
-      Eigen::VectorXd &res, double chi_2_mult);
+  static bool initialize(std::shared_ptr<State> state, std::shared_ptr<ov_type::Type> new_variable,
+                         const std::vector<std::shared_ptr<ov_type::Type>> &H_order, Eigen::MatrixXd &H_R, Eigen::MatrixXd &H_L,
+                         Eigen::MatrixXd &R, Eigen::VectorXd &res, double chi_2_mult);
 
   /**
    * @brief Initializes new variable into covariance (H_L must be invertible)
@@ -209,11 +199,9 @@ class StateHelper {
    * @param R Covariance of initializing measurements
    * @param res Residual of initializing measurements
    */
-  static void initialize_invertible(
-      std::shared_ptr<State> state, std::shared_ptr<ov_type::Type> new_variable,
-      const std::vector<std::shared_ptr<ov_type::Type>> &H_order,
-      const Eigen::MatrixXd &H_R, const Eigen::MatrixXd &H_L,
-      const Eigen::MatrixXd &R, const Eigen::VectorXd &res);
+  static void initialize_invertible(std::shared_ptr<State> state, std::shared_ptr<ov_type::Type> new_variable,
+                                    const std::vector<std::shared_ptr<ov_type::Type>> &H_order, const Eigen::MatrixXd &H_R,
+                                    const Eigen::MatrixXd &H_L, const Eigen::MatrixXd &R, const Eigen::VectorXd &res);
 
   /**
    * @brief Augment the state with a stochastic copy of the current IMU pose
@@ -246,8 +234,7 @@ class StateHelper {
    * @param last_w The estimated angular velocity at cloning time (used to
    * estimate imu-cam time offset)
    */
-  static void augment_clone(std::shared_ptr<State> state,
-                            Eigen::Matrix<double, 3, 1> last_w);
+  static void augment_clone(std::shared_ptr<State> state, Eigen::Matrix<double, 3, 1> last_w);
 
   /**
    * @brief Remove the oldest clone, if we have more then the max clone count!!
@@ -267,7 +254,7 @@ class StateHelper {
    */
   static void marginalize_slam(std::shared_ptr<State> state);
 
- private:
+private:
   /**
    * All function in this class should be static.
    * Thus an instance of this class cannot be created.
@@ -275,6 +262,6 @@ class StateHelper {
   StateHelper() {}
 };
 
-}  // namespace ov_msckf
+} // namespace ov_msckf
 
-#endif  // OV_MSCKF_STATE_HELPER_H
+#endif // OV_MSCKF_STATE_HELPER_H

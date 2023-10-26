@@ -49,7 +49,7 @@ namespace ov_msckf {
  * which should be managed using the StateHelper class.
  */
 class State {
- public:
+public:
   /**
    * @brief Default Constructor (will initialize variables to defaults)
    * @param options_ Options structure containing filter options
@@ -73,8 +73,7 @@ class State {
    *
    * @return 3x3 matrix of current imu gyroscope / accelerometer intrinsics
    */
-  static Eigen::Matrix3d Dm(StateOptions::ImuModel imu_model,
-                            const Eigen::MatrixXd &vec) {
+  static Eigen::Matrix3d Dm(StateOptions::ImuModel imu_model, const Eigen::MatrixXd &vec) {
     assert(vec.rows() == 6);
     assert(vec.cols() == 1);
     Eigen::Matrix3d D_matrix = Eigen::Matrix3d::Identity();
@@ -97,8 +96,7 @@ class State {
     assert(vec.rows() == 9);
     assert(vec.cols() == 1);
     Eigen::Matrix3d Tg = Eigen::Matrix3d::Zero();
-    Tg << vec(0), vec(3), vec(6), vec(1), vec(4), vec(7), vec(2), vec(5),
-        vec(8);
+    Tg << vec(0), vec(3), vec(6), vec(1), vec(4), vec(7), vec(2), vec(5), vec(8);
     return Tg;
   }
 
@@ -156,7 +154,7 @@ class State {
 
   std::shared_ptr<Logger> logger = std::make_shared<Logger>("state");
 
- private:
+private:
   // Define that the state helper is a friend class of this class
   // This will allow it to access the below functions which should normally
   // not be called This prevents a developer from thinking that the "insert
@@ -170,6 +168,6 @@ class State {
   std::vector<std::shared_ptr<ov_type::Type>> _variables;
 };
 
-}  // namespace ov_msckf
+} // namespace ov_msckf
 
-#endif  // OV_MSCKF_STATE_H
+#endif // OV_MSCKF_STATE_H
