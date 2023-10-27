@@ -38,6 +38,12 @@ State::State(StateOptions &options) {
   _variables.push_back(_imu);
   current_id += _imu->size();
 
+  // Append lidar extrinsic to the state and covariance
+  _calib_IMUtoLid = std::make_shared<PoseHM>();
+  _calib_IMUtoLid->set_local_id(current_id);
+  _variables.push_back(_calib_IMUtoLid);
+  current_id += _calib_IMUtoLid->size();
+
   // Append the imu intrinsics to the state and covariance
   // NOTE: these need to be right "next" to the IMU state in the covariance
   // NOTE: since if calibrating these will evolve / be correlated during

@@ -34,7 +34,7 @@ using namespace ov_msckf;
 
 std::shared_ptr<Logger> state_logger = std::make_shared<Logger>("StateHelper");
 
-void EKFPropagation(std::shared_ptr<State> state, const std::vector<std::shared_ptr<Type>> &order_NEW,
+void StateHelper::EKFPropagation(std::shared_ptr<State> state, const std::vector<std::shared_ptr<Type>> &order_NEW,
                     const std::vector<std::shared_ptr<Type>> &order_OLD, const Eigen::MatrixXd &Phi, const Eigen::MatrixXd &Q) {
   // We need at least one old and new variable
   if (order_NEW.empty() || order_OLD.empty()) {
@@ -112,7 +112,7 @@ void EKFPropagation(std::shared_ptr<State> state, const std::vector<std::shared_
   }
 }
 
-void EKFUpdate(std::shared_ptr<State> state, const std::vector<std::shared_ptr<Type>> &H_order, const Eigen::MatrixXd &H,
+void StateHelper::EKFUpdate(std::shared_ptr<State> state, const std::vector<std::shared_ptr<Type>> &H_order, const Eigen::MatrixXd &H,
                const Eigen::VectorXd &res, const Eigen::MatrixXd &R) {
   //==========================================================
   //==========================================================
@@ -187,7 +187,7 @@ void EKFUpdate(std::shared_ptr<State> state, const std::vector<std::shared_ptr<T
   }
 }
 
-void set_initial_covariance(std::shared_ptr<State> state, const Eigen::MatrixXd &covariance,
+void StateHelper::set_initial_covariance(std::shared_ptr<State> state, const Eigen::MatrixXd &covariance,
                             const std::vector<std::shared_ptr<ov_type::Type>> &order) {
   // We need to loop through each element and overwrite the current covariance
   // values For example consider the following: x = [ ori pos ] -> insert into
@@ -213,7 +213,7 @@ void set_initial_covariance(std::shared_ptr<State> state, const Eigen::MatrixXd 
   state->_Cov = state->_Cov.selfadjointView<Eigen::Upper>();
 }
 
-Eigen::MatrixXd get_marginal_covariance(std::shared_ptr<State> state, const std::vector<std::shared_ptr<Type>> &small_variables) {
+Eigen::MatrixXd StateHelper::get_marginal_covariance(std::shared_ptr<State> state, const std::vector<std::shared_ptr<Type>> &small_variables) {
   // Calculate the marginal covariance size we need to make our matrix
   int cov_size = 0;
   for (size_t i = 0; i < small_variables.size(); i++) {
@@ -241,7 +241,7 @@ Eigen::MatrixXd get_marginal_covariance(std::shared_ptr<State> state, const std:
   return Small_cov;
 }
 
-Eigen::MatrixXd get_full_covariance(std::shared_ptr<State> state) {
+Eigen::MatrixXd StateHelper::get_full_covariance(std::shared_ptr<State> state) {
   // Size of the covariance is the active
   int cov_size = (int)state->_Cov.rows();
 
@@ -255,7 +255,7 @@ Eigen::MatrixXd get_full_covariance(std::shared_ptr<State> state) {
   return full_cov;
 }
 
-void marginalize(std::shared_ptr<State> state, std::shared_ptr<Type> marg) {
+void StateHelper::marginalize(std::shared_ptr<State> state, std::shared_ptr<Type> marg) {
   // Check if the current state has the element we want to marginalize
   if (std::find(state->_variables.begin(), state->_variables.end(), marg) == state->_variables.end()) {
     state_logger->error("marginalize() - Called on variable that is not in the state");
@@ -327,7 +327,7 @@ void marginalize(std::shared_ptr<State> state, std::shared_ptr<Type> marg) {
   state->_variables = remaining_variables;
 }
 
-std::shared_ptr<Type> clone(std::shared_ptr<State> state, std::shared_ptr<Type> variable_to_clone) {
+std::shared_ptr<Type> StateHelper::clone(std::shared_ptr<State> state, std::shared_ptr<Type> variable_to_clone) {
   // Get total size of new cloned variables, and the old covariance size
   int total_size = variable_to_clone->size();
   int old_size = (int)state->_Cov.rows();
@@ -379,7 +379,7 @@ std::shared_ptr<Type> clone(std::shared_ptr<State> state, std::shared_ptr<Type> 
   return new_clone;
 }
 
-bool initialize(std::shared_ptr<State> state, std::shared_ptr<Type> new_variable, const std::vector<std::shared_ptr<Type>> &H_order,
+bool StateHelper::initialize(std::shared_ptr<State> state, std::shared_ptr<Type> new_variable, const std::vector<std::shared_ptr<Type>> &H_order,
                 Eigen::MatrixXd &H_R, Eigen::MatrixXd &H_L, Eigen::MatrixXd &R, Eigen::VectorXd &res, double chi_2_mult) {
   // Check that this new variable is not already initialized
   if (std::find(state->_variables.begin(), state->_variables.end(), new_variable) != state->_variables.end()) {
@@ -471,7 +471,7 @@ bool initialize(std::shared_ptr<State> state, std::shared_ptr<Type> new_variable
   return true;
 }
 
-void initialize_invertible(std::shared_ptr<State> state, std::shared_ptr<Type> new_variable,
+void StateHelper::initialize_invertible(std::shared_ptr<State> state, std::shared_ptr<Type> new_variable,
                            const std::vector<std::shared_ptr<Type>> &H_order, const Eigen::MatrixXd &H_R, const Eigen::MatrixXd &H_L,
                            const Eigen::MatrixXd &R, const Eigen::VectorXd &res) {
   // Check that this new variable is not already initialized
