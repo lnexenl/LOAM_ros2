@@ -32,6 +32,9 @@ include_directories(
     ${PCL_INCLUDE_DIRS}
 )
 
+add_library(loam src/utils/IKDTree.cpp)
+target_link_libraries(loam ${PCL_LIBRARIES})
+
 add_executable(subscribe src/subscribe.cpp)
 ament_target_dependencies(subscribe rclcpp pcl_conversions pcl_ros)
 target_link_libraries(subscribe ${PCL_LIBRARIES})

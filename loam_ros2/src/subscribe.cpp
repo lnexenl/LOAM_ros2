@@ -5,7 +5,7 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include "PointType.h"
+#include "utils/PointType.h"
 void lidar_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
   std::cout << "Got point cloud with " << msg->width << " points\n";
 }
