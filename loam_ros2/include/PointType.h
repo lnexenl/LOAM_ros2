@@ -11,7 +11,6 @@
 
 using namespace pcl;
 
-namespace lic_fusion {
 struct EIGEN_ALIGN16 PointType {
 public:
   PCL_ADD_POINT4D;
@@ -78,12 +77,10 @@ public:
   PCL_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-} // namespace lic_fusion
-
 // clang-format off
 ///NOTE:This part must be put in global namespace
 POINT_CLOUD_REGISTER_POINT_STRUCT(
-  lic_fusion::PointType,
+  PointType,
   (float, x, x)
   (float, y, y)
   (float, z, z)
@@ -94,7 +91,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(
 )
 
 POINT_CLOUD_REGISTER_POINT_STRUCT(
-    lic_fusion::OusterPoint,
+    OusterPoint,
     (float, x, x)
     (float, y, y)
     (float, z, z)
@@ -108,7 +105,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(
 )
 
 POINT_CLOUD_REGISTER_POINT_STRUCT(
-    lic_fusion::VelodynePoint,
+    VelodynePoint,
     (float, x, x)
     (float, y, y)
     (float, z, z)
@@ -118,7 +115,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(
 )
 
 POINT_CLOUD_REGISTER_POINT_STRUCT(
-    lic_fusion::PandarPoint,
+    PandarPoint,
     (float, x, x)
     (float, y, y)
     (float, z, z)
@@ -128,7 +125,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(
 )
 
 POINT_CLOUD_REGISTER_POINT_STRUCT(
-    lic_fusion::PointIRT,
+    PointIRT,
     (float, x, x)
     (float, y, y)
     (float, z, z)

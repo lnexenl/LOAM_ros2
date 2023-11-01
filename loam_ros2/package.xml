@@ -2,7 +2,7 @@
 <package format="3">
 
     <!-- Package Information -->
-    <name>LOAM_ros2</name>
+    <name>loam_ros2</name>
     <version>0.0.1</version>
     <description>
         Yet another implementation of LOAM based LIO, this time in ROS2.
